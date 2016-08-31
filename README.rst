@@ -14,7 +14,9 @@ Requirements
 RECOMMEND
 ---------
 
-Install virtualenv. (RECOMMEND:for protecting your Home environment.) ::
+Install virtualenv. (RECOMMEND:for protecting your Home environment.)
+
+.. code-block:: bash
 
   python3 -m pip install -U pip setuptools
   python3 -m pip install virtualenv
@@ -22,7 +24,9 @@ Install virtualenv. (RECOMMEND:for protecting your Home environment.) ::
   pip3 install virtualenv
   
 
-activate virtualenv::
+activate virtualenv
+
+.. code-block:: bash
 
   virtualenv -p python3 venv
   source venv/bin/activate
@@ -32,8 +36,9 @@ activate virtualenv::
 
 Set Up
 ------
-::
-   
+
+.. code-block:: bash
+                
    python3 -m pip install -r requirements.txt
    # or
    pip3 install -r requirements.txt
@@ -41,8 +46,9 @@ Set Up
 
 build & install
 ---------------
-::
-   
+
+.. code-block:: bash
+
    cd SQLiteater
    python3 setup.py build
    python3 setup.py install
