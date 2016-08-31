@@ -87,3 +87,16 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# for emacs
+\#*
+*~
+
+data/*
+build/*
+venv/*
+
+!.gitkeep
+
+# for Database
+*.db
