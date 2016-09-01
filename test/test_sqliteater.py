@@ -35,5 +35,12 @@ class TestSQLiteater(unittest.TestCase):
         self.assertRaises(Exception, self.tclass.createTable, (tablename, namelist, typelist))
         self.tclass.close()
 
+    def test_select_all(self):
+        self.tclass.openDB(self.dbname)
+        tablename = 'testtable'
+        self.tclass.selectAll(tablename)
+        self.tclass.close()
+        
+        
 if __name__ == '__main__':
     unittest.main()
