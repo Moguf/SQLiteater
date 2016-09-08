@@ -2,6 +2,7 @@ import os
 import sys
 import pytest
 import unittest
+from subprocess import check_output
 
 sys.path.append(os.path.abspath('./sqliteater'))
 sys.path.append(os.path.abspath('../sqliteater'))
@@ -18,6 +19,11 @@ class TestSQLiteater(unittest.TestCase):
     def setUp(self):
         self.dbname = 'test.db'
         self.tclass = sqliteater.SQLiteater()
+        
+    @classmethod
+    def tearDownClass(cls):
+        cmd = 'rm test.db'
+        check_output(cmd, shell=True)
         
     def test_createTable_with_lists(self):
         self.tclass.openDB(self.dbname)
