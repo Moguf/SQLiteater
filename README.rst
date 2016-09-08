@@ -56,5 +56,20 @@ build & install
    
 Example
 -------
-::
 
+Create Table
+~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from sqliteater import SQLiteater
+   
+   path2db = 'test.db'
+   tmp = SQliteater(path2db)
+   tablename = 'mytable'
+   namelist = ['name', 'weight', 'hight', 'location']
+   typelist = [str, int, float, str]
+   primary = ["PRIMARY KEY", '', '', '']
+   tmp.createTable(tablename, namelist, typelist, primary)
+   tmp.close()
+   

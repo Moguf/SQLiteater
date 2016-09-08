@@ -46,6 +46,15 @@ class TestSQLiteater(unittest.TestCase):
         tablename = 'testtable'
         self.tclass.selectAll(tablename)
         self.tclass.close()
+
+    def test_createTable_with_primary_keys(self):
+        self.tclass.openDB(self.dbname)
+        tablename = 'tablewithpraimary'
+        namelist = ['name', 'weight', 'hight', 'location']
+        typelist = [str, int, float, str]
+        primary = ["PRIMARY KEY", '', '', '']
+        self.assertTrue(self.tclass.createTable(tablename, namelist, typelist, primary))
+        self.tclass.close()
         
         
 if __name__ == '__main__':
