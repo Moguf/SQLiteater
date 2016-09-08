@@ -58,7 +58,7 @@ Example
 -------
 
 Create Table
-~~~~~~~~~~~~
+^^^^^^^^^^^^
 
 .. code-block:: python
 

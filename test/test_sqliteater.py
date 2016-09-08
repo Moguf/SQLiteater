@@ -14,7 +14,9 @@ except:
 class TestSQLiteater(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        pass
+        cls.datalist = [("Inu", 80, 170, "Tokyo"),
+                         ("Neko", 50, 150, "Nagoya"),
+                         ("Tanuki", 120, 200, "Sapporo")]
 
     def setUp(self):
         self.dbname = 'test.db'
@@ -43,7 +45,12 @@ class TestSQLiteater(unittest.TestCase):
 
     def test_select_all(self):
         self.tclass.openDB(self.dbname)
-        tablename = 'testtable'
+        tablename = 'selecttesttable'
+        namelist = ['name','weight','hight','location']
+        typelist = [str, int, float, str]
+        self.assertTrue(self.tclass.createTable(tablename, namelist, typelist))
+        for idata in self.datalist:
+            self.tclass.insert(tablename, idata)
         self.tclass.selectAll(tablename)
         self.tclass.close()
 
@@ -56,6 +63,7 @@ class TestSQLiteater(unittest.TestCase):
         self.assertTrue(self.tclass.createTable(tablename, namelist, typelist, primary))
         self.tclass.close()
         
+
         
 if __name__ == '__main__':
     unittest.main()

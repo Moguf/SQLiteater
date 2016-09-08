@@ -6,6 +6,7 @@ class SQLiteater(object):
     def __init__(self):
         self.dbpath = ''
         self.typedict = { str: 'text', int: 'integer', float: 'real' }
+        self.typelist = []
 
     def createTable(self, tablename, namelist, typelist, constraints=[]):
         """ 
@@ -13,9 +14,9 @@ class SQLiteater(object):
         ~~~~~~~~~~~
         
         :tablename:        Given a Table name.
-        :namelist:         Given a name list. ex) [date, firstname, lastname]
-        :typelist:         Given a type list. ex) [int, str, str]
-        :constraints:      only supports PRIMARY KEY.
+        :namelist:         Given a name list.    ex) [date, firstname, lastname]
+        :typelist:         Given a type list.    ex) [int, str, str]
+        :constraints:      Given a primary list. ex) [UNIQUE, CHECK (expression), PRIMARY KEY, DEFAULT, NOT NULL]
         
         This methods create a teble in sqlite3 database. You should run this method after running self.openDB.
         
@@ -38,7 +39,7 @@ class SQLiteater(object):
         _datas += ')'
         # create an instraction.
         
-        print(instruction + _datas)
+        print("COMMAND: ", instruction + _datas)
         self.crsr.execute(instruction + _datas)
         self.conn.commit()
         
@@ -48,7 +49,7 @@ class SQLiteater(object):
         if len(list1) != len(list2):
             raise Exception('Length of list1 != Length of list2.')
         return True
-    
+
     def openTable(self):
         pass
 
@@ -71,38 +72,62 @@ class SQLiteater(object):
 
     def renameTable(self):
         """
-        alter table rename
+        alter table rename, add column and rename.
         """
         pass
 
     def deleteTable(self, tablename):
         """
-        Drop table tablename
+        DROP TABLE TABLENAME;
         """
         pass
 
     def createView(self):
         """
         CREATE [TEMP] VIEW view_name AS SELECT query_statement
+        
         """
         pass
 
+    def deleteView(self):
+        """
+        DROP VIEW view_name;
+        """
+        pass
+
+    
     def createIndex(self):
         """
         CREATE [UNIQUE] INDEX index_name ON table_name ( column_name [, ...] );
         CREATE INDEX idx_employees_name ON employees ( name );
+        """
+        pass
+
+    def deleteIndex(self):
+        """
         DROP INDEX index_name;
         """
         pass
     
-    def insert(self):
+    def insert(self, tablename, datalist):
         """
         INSERT INTO table_name (column_name [, ...]) VALUES (new_value [, ...]);
         INSERT INTO parts ( name, stock, status ) VALUES ( 'Widget', 17, 'IN STOCK' );
         INSERT INTO table_name VALUES (new_value [, ...]);
         INSERT INTO table_name (column_name, [...]) SELECT query_statement;
         """
-        pass
+        instruction = 'insert into ' + tablename + ' values ('
+        _data = ''
+        for i, idata in enumerate(datalist):
+            if i != len(datalist)-1:
+                _data += '{}, '.format(idata)
+            else:
+                _data += '{}'.format(idata)
+        instruction += _data
+        instruction += ')'
+        print(instruction)
+        self.crsr.execute(instruction)
+
 
     def update(self):
         """
@@ -123,11 +148,13 @@ class SQLiteater(object):
         SELECT output_list FROM input_table WHERE row_filter;
         """
         pass
-    def selectAll(self, table=''):
+    def selectAll(self, tablename=''):
         """
         SELECT * FROM table;
         """
-        self.crsr.execute('select * FROM ' + table)
+        self.crsr.execute('SELECT * FROM ' + tablename)
+        for row in self.crsr:
+            print(">>", row)
 
     def showAlltables(self):
         pass
