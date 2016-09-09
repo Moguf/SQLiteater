@@ -210,4 +210,3 @@ class SQLiteater(object):
     def close(self):
         self.crsr.close()
     
-    
