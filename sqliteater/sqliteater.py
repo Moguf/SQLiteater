@@ -150,7 +150,7 @@ class SQLiteater(object):
         instruction = 'insert into ' + tablename + self.list2p(_namelist) + \
                       ' values ' + self.list2p(datalist)
         self.crsr.execute(instruction)
-
+        self.crsr.commit()
 
     def list2p(self, inlist):
         """ 
