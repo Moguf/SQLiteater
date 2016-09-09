@@ -3,11 +3,11 @@ import sqlite3
 
 
 class MyTable(object):
-    def __init__(self, tablename, namelist, typelist, constraints=[]):
+    def __init__(self, tablename, namelist, typelist=[], constraints=[]):
         self.typedict = { str: 'text', int: 'integer', float: 'real' }
         self.tablename = tablename
         self.namelist = namelist
-        self.typelist = []
+        self.typelist = typelist
         self.constraints = constraints
         
         self._formatConstraints(constraints)
@@ -15,7 +15,11 @@ class MyTable(object):
         self._checkLength()
 
     def _formatTypelist(self, typelist):
-        self.typelist = [self.typedict[ele] for ele in typelist]
+        if typelist == []:
+            self.typelist = ["" for i in self.namelist]
+        else:
+            self.typelist = [self.typedict[ele] for ele in typelist]
+        return self.typelist
 
     def _formatConstraints(self, constraints):
         if self.constraints == []:
@@ -139,15 +143,15 @@ class SQLiteater(object):
         """
         pass
     
-    def insert(self, tablename, datalist):
+    def insert(self, tablename, namelist, typelist, datalist):
         """
         INSERT INTO table_name (column_name [, ...]) VALUES (new_value [, ...]);
         INSERT INTO parts ( name, stock, status ) VALUES ( 'Widget', 17, 'IN STOCK' );
         INSERT INTO table_name VALUES (new_value [, ...]);
         INSERT INTO table_name (column_name, [...]) SELECT query_statement;
         """
-        _namelist = self.mytables[tablename].namelist
-        instruction = 'insert into ' + tablename + self.list2p(_namelist) + \
+        tbl = MyTable(tablename, namelist, typelist)
+        instruction = 'insert into ' + tablename + self.list2p(tbl.namelist) + \
                       ' values ' + self.list2p(datalist)
         self.crsr.execute(instruction)
         self.conn.commit()
