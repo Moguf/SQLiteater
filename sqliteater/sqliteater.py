@@ -191,12 +191,19 @@ class SQLiteater(object):
         """
         pass
 
-    def getTableInfo(self, tablename):
+    def getColumnNames(self, tablename):
         """
         get table information and retarn them as list format.
         """
         cursor = self.conn.execute('select * from ' + tablename)
         return [des[0] for des in cursor.description]
+
+    def getRowData(self, tablename, column_name):
+        '''
+        '''
+        self.crsr.execute('SELECT ' + column_name + ' FROM ' + tablename)
+        return self.crsr.fetchall()
+        
         
         
     def select(self):
