@@ -198,10 +198,14 @@ class SQLiteater(object):
         cursor = self.conn.execute('select * from ' + tablename)
         return [des[0] for des in cursor.description]
 
-    def getRowData(self, tablename, column_name):
+    def getRowData(self, tablename, column_name, distinct=False):
         '''
         '''
-        self.crsr.execute('SELECT ' + column_name + ' FROM ' + tablename)
+        header = 'SELECT '
+        if distinct:
+            header += 'DISTINCT '
+        
+        self.crsr.execute(header + column_name + ' FROM ' + tablename)
         return self.crsr.fetchall()
         
         

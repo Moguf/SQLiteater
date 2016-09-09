@@ -43,9 +43,9 @@ class TestSQLiteater(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.datalist = [("Inu", 80, 170, "Tokyo"),
-                         ("Neko", 50, 150, "Nagoya"),
-                         ("Tanuki", 120, 200, "Sapporo")]
-        
+                        ("Neko", 50, 150, "Nagoya"),
+                        ("Tanuki", 120, 200, "Sapporo"),
+                        ("Taro", 130, 167.2, "Sapporo")]
 
     def setUp(self):
         self.dbname = 'test.db'
@@ -106,9 +106,22 @@ class TestSQLiteater(unittest.TestCase):
         self.tclass.createTable(tablename, namelist, typelist, primary)
         for idata in self.datalist:
             self.tclass.insert(tablename, namelist, typelist, idata)
-        self.assertEqual([('Inu',), ('Neko',), ('Tanuki',)],self.tclass.getRowData(tablename, 'name'))
+        self.assertEqual([('Inu',), ('Neko',), ('Tanuki',), ('Taro',)], self.tclass.getRowData(tablename, 'name'))
         self.tclass.close()
-        
+
+    def test_getRowData_with_distinct(self):
+        self.tclass.openDB(self.dbname)
+        tablename = 'test_table'
+        namelist = ['name', 'weight', 'hight', 'location']
+        typelist = [str, int, float, str]
+        primary = ["PRIMARY KEY", '', '', '']
+        self.tclass.createTable(tablename, namelist, typelist, primary)
+        for idata in self.datalist:
+            self.tclass.insert(tablename, namelist, typelist, idata)
+        self.assertEqual([('Tokyo',), ('Nagoya',), ('Sapporo',)],
+                         self.tclass.getRowData(tablename, 'location', distinct=True))
+        self.tclass.close()
+
 
         
 if __name__ == '__main__':
