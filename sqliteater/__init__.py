@@ -1,1 +1,1 @@
-from sqliteater import SQLiteater
+from .sqliteater import SQLiteater
