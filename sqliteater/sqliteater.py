@@ -1,12 +1,51 @@
 import os
 import sqlite3
 
+
+class MyTable(object):
+    def __init__(self, tablename, namelist, typelist, constraints=[]):
+        self.typedict = { str: 'text', int: 'integer', float: 'real' }
+        self.tablename = tablename
+        self.namelist = namelist
+        self.typelist = []
+        self.constraints = constraints
+        
+        self._formatConstraints(constraints)
+        self._formatTypelist(typelist)
+        self._checkLength()
+
+    def _formatTypelist(self, typelist):
+        self.typelist = [self.typedict[ele] for ele in typelist]
+
+    def _formatConstraints(self, constraints):
+        if self.constraints == []:
+            self.constraints = ["" for i in self.namelist]
+        else:
+            self.constraints = constraints
+        return self.constraints
+            
+    def _checkLength(self):
+        # check len(namelist) == len(typelist) == len(constraints).
+        if not (len(self.namelist) == len(self.typelist) or \
+                len(self.typelist) == len(self.constraints)):
+            msg = 'Error: len(namelist), len(typelist), len(constraints) are not the same length. '
+            raise Exception(msg)
+        
+    def __str__(self):
+        return '<This table is {}.>'.format(self.tablename)
+
+    def __len__(self):
+        return len(self.namelist)
+
+    def show(self):
+        print(self.tablename)
+
+            
 class SQLiteater(object):
     """ This class provides an easy way to access sqlite3."""
     def __init__(self):
         self.dbpath = ''
-        self.typedict = { str: 'text', int: 'integer', float: 'real' }
-        self.typelist = []
+        self.mytables = {}
 
     def createTable(self, tablename, namelist, typelist, constraints=[]):
         """ 
@@ -21,34 +60,25 @@ class SQLiteater(object):
         This methods create a teble in sqlite3 database. You should run this method after running self.openDB.
         
         """
-        self._checkLength(namelist, typelist)
-        if not constraints:
-            constraints = ["" for i in namelist]
-        self._checkLength(namelist, constraints)
-        # check len(namelist) == len(typelist) == len(constraints).
-        
+        self.mytables = {tablename: MyTable(tablename, namelist, typelist, constraints)}
+        tbl = self.mytables[tablename]
         instruction = 'create table {} '.format(tablename)
         _datas = '('
-        for i, eles in enumerate(zip(namelist, typelist, constraints)):
-            if len(namelist)-1 == i:
-                _data = '{} {} {}'.format(eles[0], self.typedict[eles[1]], eles[2])
+        for i in range(len(tbl)):
+            if len(tbl)-1 == i:
+                _data = '{} {} {}'.format(tbl.namelist[i], tbl.typelist[i], tbl.constraints[i])
                 _datas += _data
                 break
-            _data = '{} {} {}, '.format(eles[0], self.typedict[eles[1]], eles[2])
+            _data = '{} {} {}, '.format(tbl.namelist[i], tbl.typelist[i], tbl.constraints[i])
             _datas += _data
         _datas += ')'
         # create an instraction.
         
-        print("COMMAND: ", instruction + _datas)
+        #print("COMMAND: ", instruction + _datas)
         self.crsr.execute(instruction + _datas)
         self.conn.commit()
         
         return instruction
-
-    def _checkLength(self, list1, list2):
-        if len(list1) != len(list2):
-            raise Exception('Length of list1 != Length of list2.')
-        return True
 
     def openTable(self):
         pass
@@ -116,19 +146,34 @@ class SQLiteater(object):
         INSERT INTO table_name VALUES (new_value [, ...]);
         INSERT INTO table_name (column_name, [...]) SELECT query_statement;
         """
-        instruction = 'insert into ' + tablename + ' values ('
-        _data = ''
-        for i, idata in enumerate(datalist):
-            if i != len(datalist)-1:
-                _data += '{}, '.format(idata)
-            else:
-                _data += '{}'.format(idata)
-        instruction += _data
-        instruction += ')'
-        print(instruction)
+        _namelist = self.mytables[tablename].namelist
+        instruction = 'insert into ' + tablename + self.list2p(_namelist) + \
+                      ' values ' + self.list2p(datalist)
         self.crsr.execute(instruction)
 
 
+    def list2p(self, inlist):
+        """ 
+        change list to paranthesis string. 
+        ex) ['name', 1.0 , "hello"] => "('name', 1.0, 'hello') "
+        """
+        ignorelist = ['text', 'real', 'integer']
+        out = ' ('
+        for i, ele in enumerate(inlist):
+            if isinstance(ele, str):
+                if ele in ignorelist:
+                    out += "{}".format(ele)
+                else:
+                    out += "'{}'".format(ele)
+            else:
+                out += '{}'.format(ele)
+            if i != len(inlist) - 1:
+                out += ', '
+            else:
+                out += ' )'
+        return out
+        
+        
     def update(self):
         """
         UPDATE table_name SET column_name=new_value [, ...] WHERE expression

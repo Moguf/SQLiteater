@@ -10,6 +10,34 @@ try:
     from sqliteater import sqliteater
 except:
     import sqliteater
+
+
+class TestMyTable(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        pass
+    
+    def test_createTable_with_different_length_lists(self):
+        tablename = 'testtable'
+        namelist = ['name','weight','hight','location']
+        typelist = [str, int, float]
+        self.assertRaises(Exception, sqliteater.MyTable, (tablename, namelist, typelist))
+
+    def test_length_of_table_by_len_function(self):
+        tablename = 'testtable'
+        namelist = ['name','weight','hight','location']
+        typelist = [str, int, float, str]
+        tbl = sqliteater.MyTable(tablename, namelist, typelist)
+        self.assertEqual(len(namelist), len(tbl))
+
+    def test_empty_constraints(self):
+        tablename = 'testtable'
+        namelist = ['name','weight','hight','location']
+        typelist = [str, int, float, str]
+        tbl = sqliteater.MyTable(tablename, namelist, typelist)
+        self.assertEqual(len(tbl.constraints), len(tbl))
+        
+        
     
 class TestSQLiteater(unittest.TestCase):
     @classmethod
@@ -34,14 +62,6 @@ class TestSQLiteater(unittest.TestCase):
         typelist = [str, int, float, str]
         self.assertTrue(self.tclass.createTable(tablename, namelist, typelist))
         self.tclass.close()
-        
-    def test_createTable_with_different_length_lists(self):
-        self.tclass.openDB(self.dbname)
-        tablename = 'testtable'
-        namelist = ['name','weight','hight','location']
-        typelist = [str, int, float]
-        self.assertRaises(Exception, self.tclass.createTable, (tablename, namelist, typelist))
-        self.tclass.close()
 
     def test_select_all(self):
         self.tclass.openDB(self.dbname)
@@ -62,8 +82,16 @@ class TestSQLiteater(unittest.TestCase):
         primary = ["PRIMARY KEY", '', '', '']
         self.assertTrue(self.tclass.createTable(tablename, namelist, typelist, primary))
         self.tclass.close()
-        
+
+    def test_list2strParenthesis(self):
+        self.assertEqual(" ('male', 'female', 1, 0.1 )", self.tclass.list2p(["male", "female", 1, 0.1]))
 
         
 if __name__ == '__main__':
-    unittest.main()
+    suite1 = unittest.TestLoader().loadTestsFromTestCase(TestMyTable)
+    suite2 = unittest.TestLoader().loadTestsFromTestCase(TestSQLiteater)
+    suite = unittest.TestSuite([suite1, suite2])
+    unittest.TextTestRunner(verbosity=2).run(suite)
+                                                        
+
+
