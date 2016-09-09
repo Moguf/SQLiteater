@@ -70,7 +70,7 @@ class TestSQLiteater(unittest.TestCase):
         typelist = [str, int, float, str]
         self.assertTrue(self.tclass.createTable(tablename, namelist, typelist))
         for idata in self.datalist:
-            self.tclass.insert(tablename, idata)
+            self.tclass.insert(tablename, namelist, typelist, idata)
         self.tclass.selectAll(tablename)
         self.tclass.close()
 
@@ -85,6 +85,16 @@ class TestSQLiteater(unittest.TestCase):
 
     def test_list2strParenthesis(self):
         self.assertEqual(" ('male', 'female', 1, 0.1 )", self.tclass.list2p(["male", "female", 1, 0.1]))
+
+    def test_getTableInfo(self):
+        self.tclass.openDB(self.dbname)
+        tablename = 'tablegettableinfo'
+        namelist = ['name', 'weight', 'hight', 'location']
+        typelist = [str, int, float, str]
+        primary = ["PRIMARY KEY", '', '', '']
+        self.tclass.createTable(tablename, namelist, typelist, primary)
+        self.assertEqual(['name', 'weight', 'hight', 'location'], self.tclass.getTableInfo(tablename))
+        self.tclass.close()
 
         
 if __name__ == '__main__':

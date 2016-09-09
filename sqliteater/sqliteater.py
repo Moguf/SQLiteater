@@ -129,7 +129,6 @@ class SQLiteater(object):
         """
         pass
 
-    
     def createIndex(self):
         """
         CREATE [UNIQUE] INDEX index_name ON table_name ( column_name [, ...] );
@@ -177,7 +176,7 @@ class SQLiteater(object):
                 out += ' )'
         return out
         
-        
+    
     def update(self):
         """
         UPDATE table_name SET column_name=new_value [, ...] WHERE expression
@@ -191,12 +190,30 @@ class SQLiteater(object):
         DELETE FROM parts WHERE part_id >= 43 AND part_id <= 246;
         """
         pass
-    
+
+    def getTableInfo(self, tablename):
+        """
+        get table information and retarn them as list format.
+        """
+        cursor = self.conn.execute('select * from ' + tablename)
+        return [des[0] for des in cursor.description]
+        
+        
     def select(self):
         """
         SELECT output_list FROM input_table WHERE row_filter;
+        
+        SELECT [DISTINCT] select_heading 
+        FROM source_tables
+        WHERE filter_expression 
+        GROUP BY grouping_expressions
+        HAVING filter_expression 
+        ORDER BY ordering_expressions 
+        LIMIT count
+        OFFSET count
         """
         pass
+
     def selectAll(self, tablename=''):
         """
         SELECT * FROM table;
@@ -204,6 +221,7 @@ class SQLiteater(object):
         self.crsr.execute('SELECT * FROM ' + tablename)
         for row in self.crsr:
             print(">>", row)
+        return None
 
     def showAlltables(self):
         pass
