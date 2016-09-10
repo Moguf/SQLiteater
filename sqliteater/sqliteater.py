@@ -176,7 +176,6 @@ class SQLiteater(object):
                 out += ' )'
         return out
         
-    
     def update(self):
         """
         UPDATE table_name SET column_name=new_value [, ...] WHERE expression
@@ -204,16 +203,12 @@ class SQLiteater(object):
         header = 'SELECT '
         if distinct:
             header += 'DISTINCT '
-        
         self.crsr.execute(header + column_name + ' FROM ' + tablename)
         return self.crsr.fetchall()
         
-        
-        
-    def select(self):
+    def select(self, tablename='', column='', where='', distinct=None, limit=None, ofset=None):
         """
         SELECT output_list FROM input_table WHERE row_filter;
-        
         SELECT [DISTINCT] select_heading 
         FROM source_tables
         WHERE filter_expression 
@@ -223,16 +218,24 @@ class SQLiteater(object):
         LIMIT count
         OFFSET count
         """
-        pass
-
-    def selectAll(self, tablename=''):
+        header = 'SELECT '
+        if distinct:
+            header += 'DISTINCT '
+        #row_filter = ' where ' + row_filter
+        if where == '':
+            instruction = header + column + ' FROM ' + tablename 
+        else:
+            instruction = header + column + ' FROM ' + tablename + ' where ' + where
+        self.crsr.execute(instruction)
+        return self.crsr.fetchall()
+        
+    def selectAll(self, tablename='', limit=1000):
         """
         SELECT * FROM table;
         """
-        self.crsr.execute('SELECT * FROM ' + tablename)
-        for row in self.crsr:
-            print(">>", row)
-        return None
+        instruction = 'SELECT * FROM {} Limit {} '.format(tablename, limit)
+        self.crsr.execute(instruction)
+        return self.crsr.fetchall()
 
     def showAlltables(self):
         pass

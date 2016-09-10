@@ -46,6 +46,9 @@ class TestSQLiteater(unittest.TestCase):
                         ("Neko", 50, 150, "Nagoya"),
                         ("Tanuki", 120, 200, "Sapporo"),
                         ("Taro", 130, 167.2, "Sapporo")]
+        cls.namelist = ['name', 'weight', 'hight', 'location']
+        cls.typelist = [str, int, float, str]
+        cls.primary = ["PRIMARY KEY", '', '', '']
 
     def setUp(self):
         self.dbname = 'test.db'
@@ -55,74 +58,75 @@ class TestSQLiteater(unittest.TestCase):
     def tearDownClass(cls):
         cmd = 'rm test.db'
         check_output(cmd, shell=True)
+
+    def _createTable(self, cls, tblname):
+        cls.openDB(self.dbname)
+        cls.createTable(tblname, self.namelist, self.typelist, self.primary)
+        return cls
+
+    def _insertData(self, cls, tblname):
+        for idata in self.datalist:
+            cls.insert(tblname, self.namelist, self.typelist, idata)
         
     def test_createTable_with_lists(self):
         self.tclass.openDB(self.dbname)
         tablename = 'testtable'
-        namelist = ['name','weight','hight','location']
-        typelist = [str, int, float, str]
-        self.assertTrue(self.tclass.createTable(tablename, namelist, typelist))
+        self.assertTrue(self.tclass.createTable(tablename, self.namelist, self.typelist))
         self.tclass.close()
 
     def test_select_all(self):
         self.tclass.openDB(self.dbname)
         tablename = 'selecttesttable'
-        namelist = ['name','weight','hight','location']
-        typelist = [str, int, float, str]
-        self.assertTrue(self.tclass.createTable(tablename, namelist, typelist))
-        for idata in self.datalist:
-            self.tclass.insert(tablename, namelist, typelist, idata)
-        self.tclass.selectAll(tablename)
+        self.assertTrue(self.tclass.createTable(tablename, self.namelist, self.typelist))
+        self._insertData(self.tclass, tablename)
+        self.assertEqual(self.datalist, self.tclass.selectAll(tablename))
         self.tclass.close()
 
     def test_createTable_with_primary_keys(self):
         self.tclass.openDB(self.dbname)
-        tablename = 'tablewithpraimary'
-        namelist = ['name', 'weight', 'hight', 'location']
-        typelist = [str, int, float, str]
-        primary = ["PRIMARY KEY", '', '', '']
-        self.assertTrue(self.tclass.createTable(tablename, namelist, typelist, primary))
+        tablename = 'ctwpktable'
+        self.assertTrue(self.tclass.createTable(tablename, self.namelist, self.typelist, self.primary))
         self.tclass.close()
 
     def test_list2strParenthesis(self):
         self.assertEqual(" ('male', 'female', 1, 0.1 )", self.tclass.list2p(["male", "female", 1, 0.1]))
 
     def test_getNames(self):
-        self.tclass.openDB(self.dbname)
-        tablename = 'tablegettableinfo'
-        namelist = ['name', 'weight', 'hight', 'location']
-        typelist = [str, int, float, str]
-        primary = ["PRIMARY KEY", '', '', '']
-        self.tclass.createTable(tablename, namelist, typelist, primary)
+        tablename = 'gntable'
+        self._createTable(self.tclass, tablename)
         self.assertEqual(['name', 'weight', 'hight', 'location'], self.tclass.getColumnNames(tablename))
         self.tclass.close()
 
     def test_getRowData(self):
-        self.tclass.openDB(self.dbname)
-        tablename = 'tablegetRowData'
-        namelist = ['name', 'weight', 'hight', 'location']
-        typelist = [str, int, float, str]
-        primary = ["PRIMARY KEY", '', '', '']
-        self.tclass.createTable(tablename, namelist, typelist, primary)
-        for idata in self.datalist:
-            self.tclass.insert(tablename, namelist, typelist, idata)
+        tablename = 'gtdtable'
+        self._createTable(self.tclass, tablename)
+        self._insertData(self.tclass, tablename)
         self.assertEqual([('Inu',), ('Neko',), ('Tanuki',), ('Taro',)], self.tclass.getRowData(tablename, 'name'))
         self.tclass.close()
 
     def test_getRowData_with_distinct(self):
-        self.tclass.openDB(self.dbname)
-        tablename = 'test_table'
-        namelist = ['name', 'weight', 'hight', 'location']
-        typelist = [str, int, float, str]
-        primary = ["PRIMARY KEY", '', '', '']
-        self.tclass.createTable(tablename, namelist, typelist, primary)
-        for idata in self.datalist:
-            self.tclass.insert(tablename, namelist, typelist, idata)
+        tablename = 'gtdtablewd'
+        self._createTable(self.tclass, tablename)
+        self._insertData(self.tclass, tablename)
         self.assertEqual([('Tokyo',), ('Nagoya',), ('Sapporo',)],
                          self.tclass.getRowData(tablename, 'location', distinct=True))
         self.tclass.close()
 
+    def test_select_with_names(self):
+        tablename = 'wntable'
+        self._createTable(self.tclass, tablename)
+        self._insertData(self.tclass, tablename)
+        self.assertEqual([('Inu',), ('Neko',), ('Tanuki',), ('Taro',)], self.tclass.select(tablename, 'name'))
+        self.assertEqual([('Tokyo',), ('Nagoya',), ('Sapporo',), ('Sapporo',)], self.tclass.select(tablename, 'location'))
+        self.assertEqual([(80,), (50,), (120,), (130,)], self.tclass.select(tablename, 'weight'))
+        self.assertEqual([(170.0,), (150.0,), (200.0,), (167.2,)], self.tclass.select(tablename, 'hight'))
 
+    def test_select_with_row_filter(self):
+        tablename = 'wrftable'
+        self._createTable(self.tclass, tablename)
+        self._insertData(self.tclass, tablename)
+        self.assertEqual([(120,), (130,)], self.tclass.select(tablename, 'weight', where='weight > 100'))
+        
         
 if __name__ == '__main__':
     suite1 = unittest.TestLoader().loadTestsFromTestCase(TestMyTable)
